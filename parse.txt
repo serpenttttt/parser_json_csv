@@ -1,13 +1,31 @@
-    {
-       "firstName": "Ivan",
-       "lastName": "Ivanov",
-       "address": {
-           "streetAddress": "Moscow, 101, 101",
-           "city": "SPB",
-           "postalCode": 101101
-       },
-       "phoneNumbers": [
-           "812 123-1234",
-           9161234567
-       ]
-    }
+
+        {
+            "value": "Иванов Виктор",
+            "unrestricted_value": "Иванов Виктор",
+            "data": {
+                "surname": "Иванов",
+                "name": "Виктор",
+                "patronymic": null,
+                "gender": "MALE"
+            }
+        },
+        {
+            "value": "Иванченко Виктор",
+            "unrestricted_value": "Иванченко Виктор",
+            "data": {
+                "surname": "Иванченко",
+                "name": "Виктор",
+                "patronymic": null,
+                "gender": "MALE"
+            }
+        },
+        {
+            "value": "Виктор Иванович",
+            "unrestricted_value": "Виктор Иванович",
+            "data": {
+                "surname": null,
+                "name": "Виктор",
+                "patronymic": "Иванович",
+                "gender": "MALE"
+            }
+        }

@@ -47,7 +47,8 @@ void write_values_to_csv(FILE *csv, HEADERS *json_columns) {
         if (json_columns[j].column->number_of_values > max)
             max = json_columns[j].column->number_of_values;
     }
-    max = max - 1;
+    if (max > 1)
+        max = max - 1;
 
     for (int j = 0; j < max; ++j) {
         for (i = 0; i < json_columns->number_headers; ++i) {
