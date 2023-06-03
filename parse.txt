@@ -1,31 +1,30 @@
-
-        {
-            "value": "Иванов Виктор",
-            "unrestricted_value": "Иванов Виктор",
-            "data": {
-                "surname": "Иванов",
-                "name": "Виктор",
-                "patronymic": null,
-                "gender": "MALE"
+            {
+                "value": "Иванов Виктор",
+                "unrestricted_value": "Иванов Виктор",
+                "data": {
+                    "surname": "Иванов",
+                    "name": "Виктор",
+                    "patronymic": null,
+                    "gender": "MALE"
+                }
+            },
+            {
+                "value": "Иванченко Виктор",
+                "unrestricted_value": "Иванченко Виктор",
+                "data": {
+                    "surname": "Иванченко",
+                    "name": "Виктор",
+                    "patronymic": null,
+                    "gender": "MALE"
+                }
+            },
+            {
+                "value": "Виктор Иванович",
+                "unrestricted_value": "Виктор Иванович",
+                "data": {
+                    "surname": null,
+                    "name": "Виктор",
+                    "patronymic": "Иванович",
+                    "gender": "MALE"
+                }
             }
-        },
-        {
-            "value": "Иванченко Виктор",
-            "unrestricted_value": "Иванченко Виктор",
-            "data": {
-                "surname": "Иванченко",
-                "name": "Виктор",
-                "patronymic": null,
-                "gender": "MALE"
-            }
-        },
-        {
-            "value": "Виктор Иванович",
-            "unrestricted_value": "Виктор Иванович",
-            "data": {
-                "surname": null,
-                "name": "Виктор",
-                "patronymic": "Иванович",
-                "gender": "MALE"
-            }
-        }

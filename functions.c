@@ -20,11 +20,11 @@ int validate_file(FILE *parse_file) {
             while ((c = getc(parse_file)) != '"');
             c = getc(parse_file);
             if (c == ':') {
-                return 1; //json
+                return 1; // json формат
             }
         }
     }
-    return 2; //csv
+    return 2; // csv формат
 }
 
 void write_headers_to_csv(FILE *csv, HEADERS *json_columns) {
@@ -72,6 +72,20 @@ void write_values_to_csv(FILE *csv, HEADERS *json_columns) {
 void write_data_to_csv(FILE *csv, HEADERS *json_columns) {
     write_headers_to_csv(csv, json_columns);
     write_values_to_csv(csv, json_columns);
+}
+
+// Функция для очистки структуры
+void *delete_struct(HEADERS *structure) {
+    for (int i = 0; i < structure[i].number_headers; ++i) {
+        free(structure[i].column->header_name);
+        for (int j = 0; j < structure[i].column->number_of_values; ++j) {
+            free(structure[i].column->values[j]);
+        }
+    }
+    for (int i = 0; i < structure[i].number_headers; ++i) {
+        free(structure[i].column);
+    }
+    free(structure);
 }
 
 /*<------------------------------------------------HEADERS functions------------------------------------------------>*/
@@ -142,7 +156,7 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
 
             //printf("%s", string);
 
-            if (c != '{') {
+            if (c != '{' && c != ' ') {
 
                 // Считаем число кавычек и запятых
                 for (int j = 0; string[j] != '\0'; ++j) {
@@ -333,6 +347,7 @@ void json_to_csv(FILE *parse_file, char const *csv_output) {
     write_data_to_csv(csv, json_columns);
 
     // Удаление структуры
+    delete_struct(json_columns);
 
     // Закрытие файла
     fclose(csv);
