@@ -107,8 +107,9 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
 
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
+
                     // Читаем строку string
-                    for (int j = spaces; string[j] != '\n'; ++j) {
+                    for (int j = spaces; string[j] != '\0'; ++j) {
                         if (string[j] == ',')
                             break;
                         if (string[j] != '"') {
@@ -121,8 +122,21 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                     //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
                 // Если число ковычек четное или количество запятых != 0, то записываем в структуру в ковычках
-                else if ((number_of_quotes % 2 == 0) || number_of_commas > 0) {
+                else if ((number_of_quotes % 2 == 0) || (number_of_commas > 0 && (number_of_quotes % 2 == 0))) {
 
+                    json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
+
+                    // Пропускаем пробелы
+                    for (spaces = 0; string[spaces] == ' '; ++spaces);
+
+                    // Читаем строку string
+                    for (int j = spaces; string[j] != '\0'; ++j) {
+                        json_columns[number_of_headers].column->values[0] = realloc(json_columns[number_of_headers].column->values[0], sizeof (char) * (k + 2));
+                        json_columns[number_of_headers].column->values[0][k] = string[j];
+                        ++k;
+                    }
+                    json_columns[number_of_headers].column->values[0][k - 1] = '\0';
+                    //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
                 // Если число ковычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
                 else {
@@ -132,7 +146,21 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                 number_of_headers = number_of_headers + 1;
             }
             if (c == '[') {
-                while ((c = fgetc(parse_file)) != ']');
+                // Ищем символ, отличный от ' ' и '\n'
+                while ((c = fgetc(parse_file)) == ' ' || (c = fgetc(parse_file)) == '\n');
+
+                // Записываем строку
+                for (str_size = 0; c != '\n'; ++str_size) {
+                    string = realloc(string, sizeof (char ) * (str_size + 2));
+                    string[str_size] = c;
+
+                    if (c == '{' || c == '[') {
+                        break;
+                    }
+
+                    c = fgetc(parse_file);
+                }
+                string[str_size] = '\0';
             }
 
             number_of_commas = 0;
