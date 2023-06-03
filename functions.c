@@ -48,10 +48,12 @@ HEADER* init_column(HEADER *column_to_init) {
 void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
     char c; // Переменная для чтения
     int i;
-    int k = 0; //
+    int k = 0; // Позиция символа
     int spaces = 0; // Число пробелов
 
-    int str_size = 0;
+    int array_size = 0; // Размер массива
+    int str_size = 0; // Размер строки
+
     char *string = (char *) malloc(sizeof (char ));
 
     int number_of_headers = 0;
@@ -93,14 +95,14 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
 
             if (c != '{') {
 
-                // Считаем число ковычек и запятых
+                // Считаем число кавычек и запятых
                 for (int j = 0; string[j] != '\0'; ++j) {
                     if (string[j] == '"')
                         number_of_quotes++;
                     if (string[j] == ',' && j != strlen(string) - 1)
                         number_of_commas++;
                 }
-                // Если число ковычек 0 или 2, а число запятых 0, то нам нужно записать значение в структуру без ковычек
+                // Если число кавычек 0 или 2, а число запятых 0, то нам нужно записать значение в структуру без кавычек
                 if ((number_of_quotes == 0 || number_of_quotes == 2) && number_of_commas == 0) {
 
                     json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
@@ -121,7 +123,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                     json_columns[number_of_headers].column->values[0][k] = '\0';
                     //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
-                // Если число ковычек четное или количество запятых != 0, то записываем в структуру в ковычках
+                // Если число кавычек четное или количество запятых != 0, то записываем в структуру в кавычках
                 else if ((number_of_quotes % 2 == 0) || (number_of_commas > 0 && (number_of_quotes % 2 == 0))) {
 
                     json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
@@ -138,31 +140,107 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                     json_columns[number_of_headers].column->values[0][k - 1] = '\0';
                     //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
-                // Если число ковычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
+                // Если число кавычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
                 else {
                     puts("Something wrong with data in the json file.");
+                    // Записать ошибку
                 }
-
                 number_of_headers = number_of_headers + 1;
             }
             if (c == '[') {
-                // Ищем символ, отличный от ' ' и '\n'
-                while ((c = fgetc(parse_file)) == ' ' || (c = fgetc(parse_file)) == '\n');
 
-                // Записываем строку
-                for (str_size = 0; c != '\n'; ++str_size) {
-                    string = realloc(string, sizeof (char ) * (str_size + 2));
-                    string[str_size] = c;
+                // Ищем ']'
+                while ((c = fgetc(parse_file)) != ']') {
 
-                    if (c == '{' || c == '[') {
+                    k = 0;
+
+                    // Ищем символ, отличный от ' ' и '\n'
+                    while (c == ' ' || c == '\n')
+                        c = fgetc(parse_file);
+
+                    // Проверяем c на ']'
+                    if (c == ']')
                         break;
+
+                    // Записываем строку
+                    for (str_size = 0; c != '\n'; ++str_size) {
+                        string = realloc(string, sizeof (char ) * (str_size + 2));
+                        string[str_size] = c;
+
+                        if (c == '{' || c == '[') {
+                            puts("Can't parse the data.");
+                            break;
+                        }
+
+                        c = fgetc(parse_file);
+                    }
+                    if (string[str_size - 1] == ',') {
+                        string[str_size - 1] = '\0';
+                    }
+                    else {
+                        string[str_size] = '\0';
+                    }
+                    //printf("%s", string);
+
+                    // Считаем число кавычек и запятых
+                    for (int j = 0; string[j] != '\0'; ++j) {
+                        if (string[j] == '"')
+                            number_of_quotes++;
+                        if (string[j] == ',' && j != strlen(string) - 1)
+                            number_of_commas++;
                     }
 
-                    c = fgetc(parse_file);
-                }
-                string[str_size] = '\0';
-            }
+                    // Если число кавычек 0 или 2, а число запятых 0, то нам нужно записать значение в структуру без кавычек
+                    if ((number_of_quotes == 0 || number_of_quotes == 2) && number_of_commas == 0) {
 
+                        json_columns[number_of_headers - 1].column->values = realloc(json_columns[number_of_headers - 1].column->values, sizeof (char *) * (array_size + 2));
+                        json_columns[number_of_headers - 1].column->values[array_size] = (char *) malloc(sizeof (char));
+
+                        /*// Пропускаем пробелы
+                        for (spaces = 0; string[spaces] == ' '; ++spaces);*/
+
+                        // Читаем строку string
+                        for (int j = spaces; string[j] != '\0'; ++j) {
+                            if (string[j] == ',')
+                                break;
+                            if (string[j] != '"') {
+                                json_columns[number_of_headers - 1].column->values[array_size] = realloc(json_columns[number_of_headers - 1].column->values[array_size], sizeof (char) * (k + 2));
+                                json_columns[number_of_headers - 1].column->values[array_size][k] = string[j];
+                                ++k;
+                            }
+                        }
+                        json_columns[number_of_headers - 1].column->values[array_size][k] = '\0';
+                        //printf("%s\n", json_columns[number_of_headers - 1].column->values[array_size]);
+                        array_size += 1;
+                    }
+                    // Если число кавычек четное или количество запятых != 0, то записываем в структуру в кавычках
+                    else if ((number_of_quotes % 2 == 0) || (number_of_commas > 0 && (number_of_quotes % 2 == 0))) {
+
+                        json_columns[number_of_headers - 1].column->values = realloc(json_columns[number_of_headers - 1].column->values, sizeof (char *) * (array_size + 2));
+                        json_columns[number_of_headers - 1].column->values[array_size] = (char *) malloc(sizeof (char));
+
+                        /*// Пропускаем пробелы
+                        for (spaces = 0; string[spaces] == ' '; ++spaces);*/
+
+                        // Читаем строку string
+                        for (int j = spaces; string[j] != '\0'; ++j) {
+                            json_columns[number_of_headers - 1].column->values[array_size] = realloc(json_columns[number_of_headers - 1].column->values[array_size], sizeof (char) * (k + 2));
+                            json_columns[number_of_headers - 1].column->values[array_size][k] = string[j];
+                            ++k;
+                        }
+                        json_columns[number_of_headers - 1].column->values[array_size][k - 1] = '\0';
+                        //printf("%s\n", json_columns[number_of_headers - 1].column->values[array_size]);
+                        array_size += 1;
+                    }
+                    // Если число кавычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
+                    else {
+                        puts("Something wrong with data in the json file.");
+                    }
+                    number_of_quotes = 0;
+                }
+                puts("\nData configured.");
+            }
+            array_size = 0;
             number_of_commas = 0;
             number_of_quotes = 0;
             k = 0;
