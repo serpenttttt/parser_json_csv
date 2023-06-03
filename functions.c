@@ -1,5 +1,6 @@
 #include "functions.h"
 
+/*<----------------------------------------------------Functions---------------------------------------------------->*/
 // Функция для записи строки, полученной от пользователя
 char *input_string(char *string) {
     char input;
@@ -26,7 +27,15 @@ int validate_file(FILE *parse_file) {
     return 2; //csv
 }
 
-// HEADERS functions
+
+
+// Функция записи в csv файл из структуры HEADERS
+void write_data_to_csv(FILE *csv, HEADERS *json_columns) {
+    write_headers_to_csv(csv, json_columns);
+    write_values_to_csv(csv, json_columns);
+}
+
+/*<------------------------------------------------HEADERS functions------------------------------------------------>*/
 HEADERS* init_HEADERS(HEADERS *headers_to_init) {
 
     headers_to_init = (HEADERS *) malloc(sizeof (HEADERS));
@@ -200,7 +209,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                         for (spaces = 0; string[spaces] == ' '; ++spaces);*/
 
                         // Читаем строку string
-                        for (int j = spaces; string[j] != '\0'; ++j) {
+                        for (int j = 0; string[j] != '\0'; ++j) {
                             if (string[j] == ',')
                                 break;
                             if (string[j] != '"') {
@@ -223,7 +232,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                         for (spaces = 0; string[spaces] == ' '; ++spaces);*/
 
                         // Читаем строку string
-                        for (int j = spaces; string[j] != '\0'; ++j) {
+                        for (int j = 0; string[j] != '\0'; ++j) {
                             json_columns[number_of_headers - 1].column->values[array_size] = realloc(json_columns[number_of_headers - 1].column->values[array_size], sizeof (char) * (k + 2));
                             json_columns[number_of_headers - 1].column->values[array_size][k] = string[j];
                             ++k;
@@ -238,7 +247,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                     }
                     number_of_quotes = 0;
                 }
-                puts("\nData configured.");
+                //puts("\nData configured.");
             }
             array_size = 0;
             number_of_commas = 0;
@@ -251,6 +260,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
     puts("Headers and data configured.");
 }
 
+/*<------------------------------------------------Parsing functions------------------------------------------------>*/
 // Parsing json file to csv file
 void json_to_csv(FILE *parse_file, char const *csv_output) {
 
@@ -273,6 +283,9 @@ void json_to_csv(FILE *parse_file, char const *csv_output) {
     }
 
     // Запись в файл информации из структуры
+    write_data_to_csv(csv, json_columns);
+
+    // Удаление структуры
 
     // Закрытие файла
     fclose(csv);
