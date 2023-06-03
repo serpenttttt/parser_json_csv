@@ -93,6 +93,7 @@ HEADERS* init_HEADERS(HEADERS *headers_to_init) {
 
     headers_to_init = (HEADERS *) malloc(sizeof (HEADERS));
     headers_to_init->column = NULL;
+    headers_to_init->number_headers = 0;
 
     return headers_to_init;
 }
@@ -113,9 +114,11 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
     int i;
     int k = 0; // Позиция символа
     int spaces = 0; // Число пробелов
+    int flag = 0; // Флаг
 
     int array_size = 0; // Размер массива
     int str_size = 0; // Размер строки
+    int old_position; // Старая позиция на запись в структуру
 
     char *string = (char *) malloc(sizeof (char ));
 
@@ -131,12 +134,38 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
             json_columns = realloc(json_columns, sizeof (HEADERS) * (number_of_headers + 1));
             json_columns[number_of_headers].column = init_column(json_columns[number_of_headers].column);
 
-            for (i = 0; (c = fgetc(parse_file)) != ':'; i++) {
+            /*for (i = 0; (c = fgetc(parse_file)) != ':'; i++) {
                 json_columns[number_of_headers].column->header_name = realloc(json_columns[number_of_headers].column->header_name, sizeof (char) * (i + 1));
                 json_columns[number_of_headers].column->header_name[i] = c;
             }
 
-            json_columns[number_of_headers].column->header_name[i - 1] = '\0';
+            json_columns[number_of_headers].column->header_name[i - 1] = '\0';*/
+
+            // Считываем хедер в строку
+            for (str_size = 0; (c = fgetc(parse_file)) != ':'; ++str_size) {
+                string = realloc(string, sizeof (char) * (str_size + 1));
+                string[str_size] = c;
+            }
+            string[str_size - 1] = '\0';
+            //printf("%s", string);
+
+            // Просматриваем хедеры в структуре, отмечаем флагом, если совпало
+            for (int j = 0; j < json_columns->number_headers; ++j) {
+                printf("%s -- string\n", string);
+                printf("%s -- structure\n", json_columns[j].column->header_name);
+                if (strcmp(string, json_columns[j].column->header_name) == 0) {
+                    old_position = number_of_headers;
+                    number_of_headers = j;
+                    flag = 1;
+                    puts("Double");
+                    break;
+                }
+            }
+            // Если хедер уникален, то выделяем паямть под него в структуре и копируем
+            if (flag == 0) {
+                json_columns[number_of_headers].column->header_name = realloc(json_columns[number_of_headers].column->header_name, sizeof (char) * (str_size + 1));
+                strcpy(json_columns[number_of_headers].column->header_name, string);
+            }
 
             /*
              * Проверяем, есть ли в заголовке другие заголовки
@@ -210,7 +239,8 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                     puts("Something wrong with data in the json file.");
                     // Записать ошибку
                 }
-                number_of_headers = number_of_headers + 1;
+                if (flag == 0)
+                    number_of_headers = number_of_headers + 1;
             }
             if (c == '[') {
 
@@ -307,6 +337,12 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                 }
                 //puts("\nData configured.");
             }
+            if (flag == 1)
+                number_of_headers = old_position;
+
+            json_columns->number_headers = number_of_headers;
+
+            flag = 0;
             array_size = 0;
             number_of_commas = 0;
             number_of_quotes = 0;

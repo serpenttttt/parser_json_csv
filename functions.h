@@ -16,8 +16,4 @@ void json_to_csv(FILE *parse_file, char const *csv_output);
 
 // HEADERS functions
 
-
-
-
-
 #endif //PARSER_JSON_CSV_FUNCTIONS_H
