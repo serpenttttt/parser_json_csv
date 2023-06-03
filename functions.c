@@ -27,7 +27,45 @@ int validate_file(FILE *parse_file) {
     return 2; //csv
 }
 
+void write_headers_to_csv(FILE *csv, HEADERS *json_columns) {
+    for (int i = 0; i < json_columns->number_headers; ++i) {
+        //printf("%s", json_columns[i].column->header_name);
+        fprintf(csv, "%s", json_columns[i].column->header_name);
+        if (i + 1 != json_columns->number_headers)
+            fprintf(csv, "%c", ',');
+        else
+            fprintf(csv, "%c", '\n');
+    }
+}
 
+void write_values_to_csv(FILE *csv, HEADERS *json_columns) {
+    int i = 0;
+
+    int max = 0;
+
+    for (int j = 0; j < json_columns->number_headers; ++j) {
+        if (json_columns[j].column->number_of_values > max)
+            max = json_columns[j].column->number_of_values;
+    }
+    max = max - 1;
+
+    for (int j = 0; j < max; ++j) {
+        for (i = 0; i < json_columns->number_headers; ++i) {
+            if (json_columns[i].column->number_of_values > j) {
+                fprintf(csv, "%s", json_columns[i].column->values[j]);
+                if (i + 1 != json_columns->number_headers)
+                    fprintf(csv, "%c", ',');
+                else
+                    fprintf(csv, "%c", '\n');
+            } else {
+                if (i + 1 != json_columns->number_headers)
+                    fprintf(csv, "%c", ',');
+                else
+                    fprintf(csv, "%c", '\n');
+            }
+        }
+    }
+}
 
 // Функция записи в csv файл из структуры HEADERS
 void write_data_to_csv(FILE *csv, HEADERS *json_columns) {
@@ -50,11 +88,12 @@ HEADER* init_column(HEADER *column_to_init) {
     //column_to_init->child = NULL;
     column_to_init->header_name = (char *) malloc(sizeof (char));
     column_to_init->values = (char **) malloc(sizeof (char *));
+    column_to_init->number_of_values = 0;
 
     return column_to_init;
 }
 
-void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
+HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
     char c; // Переменная для чтения
     int i;
     int k = 0; // Позиция символа
@@ -115,6 +154,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                 if ((number_of_quotes == 0 || number_of_quotes == 2) && number_of_commas == 0) {
 
                     json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
+                    json_columns[number_of_headers].column->number_of_values = 1;
 
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
@@ -136,6 +176,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                 else if ((number_of_quotes % 2 == 0) || (number_of_commas > 0 && (number_of_quotes % 2 == 0))) {
 
                     json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
+                    json_columns[number_of_headers].column->number_of_values = 1;
 
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
@@ -220,6 +261,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                         }
                         json_columns[number_of_headers - 1].column->values[array_size][k] = '\0';
                         //printf("%s\n", json_columns[number_of_headers - 1].column->values[array_size]);
+                        json_columns[number_of_headers - 1].column->number_of_values += 1;
                         array_size += 1;
                     }
                     // Если число кавычек четное или количество запятых != 0, то записываем в структуру в кавычках
@@ -239,6 +281,7 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
                         }
                         json_columns[number_of_headers - 1].column->values[array_size][k - 1] = '\0';
                         //printf("%s\n", json_columns[number_of_headers - 1].column->values[array_size]);
+                        json_columns[number_of_headers - 1].column->number_of_values += 1;
                         array_size += 1;
                     }
                     // Если число кавычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
@@ -257,7 +300,9 @@ void write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_columns) {
             str_size = 0;
         }
     }
+    json_columns->number_headers = number_of_headers;
     puts("Headers and data configured.");
+    return json_columns;
 }
 
 /*<------------------------------------------------Parsing functions------------------------------------------------>*/
@@ -269,7 +314,7 @@ void json_to_csv(FILE *parse_file, char const *csv_output) {
     json_columns = init_HEADERS(json_columns);
 
     // Запись в структуру заголовков и данных
-    write_headers_and_data_in_struct(parse_file, json_columns);
+    json_columns = write_headers_and_data_in_struct(parse_file, json_columns);
 
     // Открытие файла, который указан в #define csv_output
     FILE *csv = fopen(csv_output, "w");
@@ -283,6 +328,7 @@ void json_to_csv(FILE *parse_file, char const *csv_output) {
     }
 
     // Запись в файл информации из структуры
+    puts("Writing data ...");
     write_data_to_csv(csv, json_columns);
 
     // Удаление структуры

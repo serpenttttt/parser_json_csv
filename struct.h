@@ -6,10 +6,12 @@ typedef struct HEADER {
     //struct HEADERS **child; // если в заголовке есть другие заголовки
 
     char *header_name; // сам заголовок
+    int number_of_values; // число значений в массиве
     char **values; // значения (для массива [])
 } HEADER;
 
 typedef struct HEADERS {
+    int number_headers;
     struct HEADER *column;
 } HEADERS;
 
