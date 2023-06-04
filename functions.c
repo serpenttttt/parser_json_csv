@@ -30,6 +30,7 @@ int validate_file(FILE *parse_file) {
 void write_headers_to_csv(FILE *csv, HEADERS *json_columns) {
     for (int i = 0; i < json_columns->number_headers; ++i) {
         //printf("%s", json_columns[i].column->header_name);
+        //printf("\n%s\n", json_columns[5].column->header_name);
         fprintf(csv, "%s", json_columns[i].column->header_name);
         if (i + 1 != json_columns->number_headers)
             fprintf(csv, "%c", ',');
@@ -202,7 +203,7 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                         json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values] = (char *) malloc(sizeof (char));
                         //json_columns[number_of_headers].column->number_of_values += 1;
                     }
-/*--------------------------------------------------------------------------------------------------------------------*/
+
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
 
@@ -278,6 +279,8 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                     number_of_headers = number_of_headers + 1;
             }
             if (c == '[') {
+
+                number_of_headers = number_of_headers + 1;
 
                 // Ищем ']'
                 while ((c = fgetc(parse_file)) != ']') {
