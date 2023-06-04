@@ -47,8 +47,8 @@ void write_values_to_csv(FILE *csv, HEADERS *json_columns) {
         if (json_columns[j].column->number_of_values > max)
             max = json_columns[j].column->number_of_values;
     }
-    if (max > 1)
-        max = max - 1;
+    /*if (max > 1)
+        max = max - 1;*/
 
     for (int j = 0; j < max; ++j) {
         for (i = 0; i < json_columns->number_headers; ++i) {
@@ -151,13 +151,11 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
 
             // Просматриваем хедеры в структуре, отмечаем флагом, если совпало
             for (int j = 0; j < json_columns->number_headers; ++j) {
-                printf("%s -- string\n", string);
-                printf("%s -- structure\n", json_columns[j].column->header_name);
                 if (strcmp(string, json_columns[j].column->header_name) == 0) {
                     old_position = number_of_headers;
                     number_of_headers = j;
                     flag = 1;
-                    puts("Double");
+                    //puts("Double");
                     break;
                 }
             }
@@ -185,7 +183,7 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
 
             //printf("%s", string);
 
-            if (c != '{' && c != ' ') {
+            if (c != '{' && c != ' ' && c != '[') {
 
                 // Считаем число кавычек и запятых
                 for (int j = 0; string[j] != '\0'; ++j) {
@@ -196,10 +194,15 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                 }
                 // Если число кавычек 0 или 2, а число запятых 0, то нам нужно записать значение в структуру без кавычек
                 if ((number_of_quotes == 0 || number_of_quotes == 2) && number_of_commas == 0) {
-
-                    json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
-                    json_columns[number_of_headers].column->number_of_values = 1;
-
+                    if (flag == 0) {
+                        json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
+                    }
+                    if (flag == 1) {
+                        json_columns[number_of_headers].column->values = realloc(json_columns[number_of_headers].column->values, sizeof (char *) * (json_columns[number_of_headers].column->number_of_values + 1));
+                        json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values] = (char *) malloc(sizeof (char));
+                        //json_columns[number_of_headers].column->number_of_values += 1;
+                    }
+/*--------------------------------------------------------------------------------------------------------------------*/
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
 
@@ -208,30 +211,62 @@ HEADERS *write_headers_and_data_in_struct(FILE *parse_file, HEADERS *json_column
                         if (string[j] == ',')
                             break;
                         if (string[j] != '"') {
-                            json_columns[number_of_headers].column->values[0] = realloc(json_columns[number_of_headers].column->values[0], sizeof (char) * (k + 2));
-                            json_columns[number_of_headers].column->values[0][k] = string[j];
-                            ++k;
+                            if (flag == 0) {
+                                json_columns[number_of_headers].column->values[0] = realloc(json_columns[number_of_headers].column->values[0], sizeof (char) * (k + 2));
+                                json_columns[number_of_headers].column->values[0][k] = string[j];
+                                ++k;
+                            }
+                            if (flag == 1) {
+                                json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values] = realloc(json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values], sizeof (char) * (k + 2));
+                                json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values][k] = string[j];
+                                ++k;
+                            }
                         }
                     }
-                    json_columns[number_of_headers].column->values[0][k] = '\0';
+                    if (flag == 0) {
+                        json_columns[number_of_headers].column->values[0][k] = '\0';
+                        json_columns[number_of_headers].column->number_of_values = 1;
+                    }
+                    if (flag == 1) {
+                        json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values][k] = '\0';
+                        json_columns[number_of_headers].column->number_of_values += 1;
+                    }
                     //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
                 // Если число кавычек четное или количество запятых != 0, то записываем в структуру в кавычках
                 else if ((number_of_quotes % 2 == 0) || (number_of_commas > 0 && (number_of_quotes % 2 == 0))) {
 
-                    json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
-                    json_columns[number_of_headers].column->number_of_values = 1;
+                    if (flag == 0) {
+                        json_columns[number_of_headers].column->values[0] = (char *) malloc(sizeof (char));
+                    }
+                    if (flag == 1) {
+                        json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values] = (char *) malloc(sizeof (char));
+                    }
 
                     // Пропускаем пробелы
                     for (spaces = 0; string[spaces] == ' '; ++spaces);
 
                     // Читаем строку string
                     for (int j = spaces; string[j] != '\0'; ++j) {
-                        json_columns[number_of_headers].column->values[0] = realloc(json_columns[number_of_headers].column->values[0], sizeof (char) * (k + 2));
-                        json_columns[number_of_headers].column->values[0][k] = string[j];
-                        ++k;
+                        if (flag == 0) {
+                            json_columns[number_of_headers].column->values[0] = realloc(json_columns[number_of_headers].column->values[0], sizeof (char) * (k + 2));
+                            json_columns[number_of_headers].column->values[0][k] = string[j];
+                            ++k;
+                        }
+                        if (flag == 1) {
+                            json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values] = realloc(json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values], sizeof (char) * (k + 2));
+                            json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values][k] = string[j];
+                            ++k;
+                        }
                     }
-                    json_columns[number_of_headers].column->values[0][k - 1] = '\0';
+                    if (flag == 0) {
+                        json_columns[number_of_headers].column->values[0][k - 1] = '\0';
+                        json_columns[number_of_headers].column->number_of_values = 1;
+                    }
+                    if (flag == 1){
+                        json_columns[number_of_headers].column->values[json_columns[number_of_headers].column->number_of_values][k - 1] = '\0';
+                        json_columns[number_of_headers].column->number_of_values += 1;
+                    }
                     //printf("%s\n", json_columns[number_of_headers].column->values[0]);
                 }
                 // Если число кавычек нечетное, то выводим пользователю сообщение о вероятной ошибке в данных
