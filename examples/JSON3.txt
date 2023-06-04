@@ -1,0 +1,32 @@
+{
+    "value": "Иванченко Виктор",
+    "unrestricted_value": [
+         "812 123-1234",
+         9161234567
+    ]
+    "data": {
+        "surname": "Иванченко",
+        "name": "Виктор",
+        "patronymic": null,
+        "gender": "MALE"
+    }
+},
+{
+    "value": " ",
+    "data": {
+        "surname": " ",
+        "name": " ",
+        "patronymic": " ",
+        "gender": " "
+    }
+},
+{
+    "value": "Иванов Виктор",
+    "unrestricted_value": "Иванов Виктор",
+    "data": {
+        "surname": "Иванов",
+        "name": "Виктор",
+        "patronymic": null,
+        "gender": "MALE"
+    }
+}

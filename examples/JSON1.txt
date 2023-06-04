@@ -1,0 +1,14 @@
+{
+   "firstName": "Ivan",
+   "lastName": "Ivanov",
+   "address": {
+       "streetAddress": "Moscow, 101, 101",
+       "city": "SPB",
+       "postalCode": 101101
+   },
+   "phoneNumbers": [
+       "812 123-1234",
+       9161234567,
+       "46"
+   ]
+}

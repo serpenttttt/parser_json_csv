@@ -30,7 +30,7 @@ int main() {
         json_to_csv(parse_file, csv_output);
     } else if (type == 2) {
         puts("Parsing CSV to JSON ...");
-        //csv_to_json(json_output);
+        csv_to_json(parse_file, json_output);
     }
 
     // Process finished

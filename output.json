@@ -1,0 +1,26 @@
+[
+	{
+		"firstName": "Ivan",
+		"lastName": "Ivanov",
+		"streetAddress": "Moscow; 101; 101",
+		"city": "SPB",
+		"postalCode": "101101",
+		"phoneNumbers": "812 123-1234"
+	},
+	{
+		"firstName": "Jyk",
+		"lastName": "Chto-li",
+		"streetAddress": "Mayskiy",
+		"city": "Karaganda",
+		"postalCode": "000000",
+		"phoneNumbers": "8 800"
+	},
+	{
+		"firstName": "rege",
+		"lastName": "hrth",
+		"streetAddress": "wawa",
+		"city": "453543",
+		"postalCode": "rshr",
+		"phoneNumbers": "55555"
+	}
+]
