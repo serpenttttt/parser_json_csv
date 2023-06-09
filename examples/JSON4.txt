@@ -1,0 +1,36 @@
+[
+    {
+        "value": "Добрыня Никитич",
+        "unrestricted_value": [
+             "812 123-1234",
+             9161234567
+        ],
+        "data": {
+            "surname": "Нет данных",
+            "name": "Добрыня",
+            "patronymic": "Никитич",
+            "gender": "MALE"
+        }
+    },
+    {
+        "value": "Алеша Попович",
+        "unrestricted_value": "Ослик",
+        "data": {
+            "surname": "Нет данных",
+            "name": "Алексей",
+            "patronymic": "Попович",
+            "gender": "MALE"
+        }
+    },
+    {
+        "value": "Илья Муромец",
+        "unrestricted_value": "Иfefefefefeор",
+        "data": {
+            "surname": "Нет данных",
+            "name": "Илья",
+            "patronymic": "Муромец",
+            "gender": "MArfefeLE хто я"
+        },
+        "new_value": "pepechill"
+    }
+]

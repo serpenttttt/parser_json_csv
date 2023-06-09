@@ -3,7 +3,7 @@
         "value": "Иванов Виктор",
         "unrestricted_value": "Иванов Виктор",
         "data": {
-            "surname": "Иванов",
+            "surname": "Ива,нов",
             "name": "Виктор",
             "patronymic": null,
             "gender": "MALE"
